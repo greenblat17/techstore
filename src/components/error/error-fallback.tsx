@@ -1,7 +1,21 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Home, RefreshCw, AlertTriangle, Wifi, Server, ShieldAlert } from "lucide-react";
+import {
+  Home,
+  RefreshCw,
+  AlertTriangle,
+  Wifi,
+  Server,
+  ShieldAlert,
+} from "lucide-react";
 
 interface ErrorFallbackProps {
   type?: "network" | "server" | "auth" | "general";
@@ -26,14 +40,17 @@ export function ErrorFallback({
         return {
           icon: <Wifi className="h-12 w-12 text-muted-foreground" />,
           title: title || "Network Connection Error",
-          message: message || "Please check your internet connection and try again.",
+          message:
+            message || "Please check your internet connection and try again.",
           alertVariant: "default" as const,
         };
       case "server":
         return {
           icon: <Server className="h-12 w-12 text-muted-foreground" />,
           title: title || "Server Error",
-          message: message || "Our servers are experiencing issues. Please try again later.",
+          message:
+            message ||
+            "Our servers are experiencing issues. Please try again later.",
           alertVariant: "destructive" as const,
         };
       case "auth":
@@ -71,7 +88,7 @@ export function ErrorFallback({
           <CardTitle className="text-xl">{content.title}</CardTitle>
           <CardDescription>{content.message}</CardDescription>
         </CardHeader>
-        
+
         {type === "network" && (
           <CardContent>
             <Alert>
@@ -81,7 +98,7 @@ export function ErrorFallback({
                 <ul className="mt-2 ml-4 list-disc text-sm">
                   <li>Check your internet connection</li>
                   <li>Try refreshing the page</li>
-                  <li>Disable VPN if you're using one</li>
+                  <li>Disable VPN if you&apos;re using one</li>
                   <li>Clear your browser cache</li>
                 </ul>
               </AlertDescription>
@@ -97,13 +114,16 @@ export function ErrorFallback({
             </Button>
           )}
           {showHome && (
-            <Button onClick={() => window.location.href = "/"} variant="outline">
+            <Button
+              onClick={() => (window.location.href = "/")}
+              variant="outline"
+            >
               <Home className="h-4 w-4 mr-2" />
               Go Home
             </Button>
           )}
           {type === "auth" && (
-            <Button onClick={() => window.location.href = "/sign-in"}>
+            <Button onClick={() => (window.location.href = "/sign-in")}>
               Sign In
             </Button>
           )}

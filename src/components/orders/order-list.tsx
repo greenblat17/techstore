@@ -50,11 +50,11 @@ export function OrderList() {
     try {
       const response = await fetch("/api/orders");
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch orders");
       }
-      
+
       setOrders(data.orders || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load orders");
@@ -126,7 +126,9 @@ export function OrderList() {
       <Card>
         <CardContent className="p-12 text-center">
           <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground mb-4">You haven't placed any orders yet</p>
+          <p className="text-muted-foreground mb-4">
+            You haven&apos;t placed any orders yet
+          </p>
           <Button asChild>
             <Link href="/products">Start Shopping</Link>
           </Button>
@@ -160,7 +162,9 @@ export function OrderList() {
                 <Badge variant={getStatusBadgeVariant(order.status)}>
                   {order.status}
                 </Badge>
-                <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus)}>
+                <Badge
+                  variant={getPaymentStatusBadgeVariant(order.paymentStatus)}
+                >
                   Payment: {order.paymentStatus}
                 </Badge>
               </div>
@@ -206,7 +210,9 @@ export function OrderList() {
             <div className="flex items-center justify-between pt-4 border-t">
               <div>
                 <p className="text-sm text-muted-foreground">Total</p>
-                <p className="text-xl font-semibold">{formatCurrency(order.total)}</p>
+                <p className="text-xl font-semibold">
+                  {formatCurrency(order.total)}
+                </p>
               </div>
               <Button asChild variant="outline">
                 <Link href={`/orders/${order.id}`}>

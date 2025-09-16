@@ -68,7 +68,9 @@ function EmptyState({ message }: { message: string }) {
             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
           />
         </svg>
-        <h3 className="text-lg font-medium text-foreground mb-2">No products found</h3>
+        <h3 className="text-lg font-medium text-foreground mb-2">
+          No products found
+        </h3>
         <p className="text-sm text-muted-foreground">{message}</p>
       </div>
     </div>
@@ -97,7 +99,9 @@ export function ProductGrid({
   if (loading) {
     const skeletonCount = columns * 2; // Show 2 rows of skeletons
     return (
-      <div className={`grid ${columnClasses[columns]} gap-4 md:gap-6 ${className}`}>
+      <div
+        className={`grid ${columnClasses[columns]} gap-4 md:gap-6 ${className}`}
+      >
         {Array.from({ length: skeletonCount }).map((_, index) => (
           <ProductSkeleton key={index} />
         ))}
@@ -108,7 +112,9 @@ export function ProductGrid({
   // Show empty state
   if (!products || products.length === 0) {
     return (
-      <div className={`grid ${columnClasses[columns]} gap-4 md:gap-6 ${className}`}>
+      <div
+        className={`grid ${columnClasses[columns]} gap-4 md:gap-6 ${className}`}
+      >
         <EmptyState message={emptyStateMessage} />
       </div>
     );
@@ -116,7 +122,9 @@ export function ProductGrid({
 
   // Show product grid
   return (
-    <div className={`grid ${columnClasses[columns]} gap-4 md:gap-6 ${className}`}>
+    <div
+      className={`grid ${columnClasses[columns]} gap-4 md:gap-6 ${className}`}
+    >
       {products.map((product) => (
         <ProductCard
           key={product.id}
@@ -130,7 +138,7 @@ export function ProductGrid({
 }
 
 // List view variant for product listings
-interface ProductListProps extends Omit<ProductGridProps, 'columns'> {}
+type ProductListProps = Omit<ProductGridProps, "columns">;
 
 export function ProductList({
   products,

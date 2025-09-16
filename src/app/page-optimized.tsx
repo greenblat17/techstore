@@ -1,15 +1,20 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  ShoppingCart, 
-  ArrowRight, 
-  Sparkles, 
-  Truck, 
-  Shield, 
+import {
+  ShoppingCart,
+  ArrowRight,
+  Sparkles,
+  Truck,
+  Shield,
   CreditCard,
   Package,
   Clock,
@@ -26,7 +31,7 @@ import {
   Laptop,
   Speaker,
   Heart,
-  Eye
+  Eye,
 } from "lucide-react";
 import Image from "next/image";
 import { db } from "@/lib/db";
@@ -43,27 +48,24 @@ async function getHomePageData() {
       .from(products)
       .where(
         and(
-          eq(products.status, 'active'),
-          or(
-            eq(products.featured, true),
-            gt(products.stockQuantity, 0)
-          )
+          eq(products.status, "active"),
+          or(eq(products.featured, true), gt(products.stockQuantity, 0))
         )
       )
       .orderBy(desc(products.featured), desc(products.createdAt))
       .limit(8)
       .catch((error) => {
-        console.error('Error fetching featured products:', error);
+        console.error("Error fetching featured products:", error);
         return [];
       }),
-    
+
     // Sale products query
     db
       .select()
       .from(products)
       .where(
         and(
-          eq(products.status, 'active'),
+          eq(products.status, "active"),
           sql`${products.salePrice} IS NOT NULL`,
           gt(products.stockQuantity, 0)
         )
@@ -71,10 +73,10 @@ async function getHomePageData() {
       .orderBy(desc(products.createdAt))
       .limit(4)
       .catch((error) => {
-        console.error('Error fetching sale products:', error);
+        console.error("Error fetching sale products:", error);
         return [];
       }),
-    
+
     // Categories query
     db
       .select()
@@ -82,22 +84,26 @@ async function getHomePageData() {
       .orderBy(categories.displayOrder)
       .limit(6)
       .catch((error) => {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
         return [];
-      })
+      }),
   ]);
-  
+
   return {
     featuredProducts,
     saleProducts,
-    categories: categoriesData
+    categories: categoriesData,
   };
 }
 
 // Product Card Component (reuse existing)
 function ProductCard({ product }: { product: any }) {
-  const discountPercentage = product.salePrice 
-    ? Math.round(((parseFloat(product.price) - parseFloat(product.salePrice)) / parseFloat(product.price)) * 100)
+  const discountPercentage = product.salePrice
+    ? Math.round(
+        ((parseFloat(product.price) - parseFloat(product.salePrice)) /
+          parseFloat(product.price)) *
+          100
+      )
     : 0;
 
   return (
@@ -113,7 +119,7 @@ function ProductCard({ product }: { product: any }) {
           Featured
         </Badge>
       )}
-      
+
       <CardHeader className="p-0">
         <Link href={`/products/${product.slug}`}>
           <div className="aspect-square relative overflow-hidden bg-muted">
@@ -131,15 +137,22 @@ function ProductCard({ product }: { product: any }) {
                 <Package className="h-12 w-12" />
               </div>
             )}
-            
+
             {/* Quick actions overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-                <Button size="sm" className="flex-1 bg-background/90 backdrop-blur-sm hover:bg-background">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-background/90 backdrop-blur-sm hover:bg-background"
+                >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Add
                 </Button>
-                <Button size="icon" variant="secondary" className="bg-background/90 backdrop-blur-sm hover:bg-background">
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="bg-background/90 backdrop-blur-sm hover:bg-background"
+                >
                   <Eye className="h-4 w-4" />
                 </Button>
               </div>
@@ -147,18 +160,18 @@ function ProductCard({ product }: { product: any }) {
           </div>
         </Link>
       </CardHeader>
-      
+
       <CardContent className="p-4">
         <Link href={`/products/${product.slug}`}>
           <h3 className="font-semibold text-base line-clamp-2 group-hover:text-primary transition-colors">
             {product.name}
           </h3>
         </Link>
-        
+
         {product.brand && (
           <p className="text-sm text-muted-foreground mt-1">{product.brand}</p>
         )}
-        
+
         {/* Rating */}
         {product.ratingAverage && parseFloat(product.ratingAverage) > 0 && (
           <div className="flex items-center gap-1 mt-2">
@@ -168,8 +181,8 @@ function ProductCard({ product }: { product: any }) {
                   key={i}
                   className={`h-3 w-3 ${
                     i < Math.floor(parseFloat(product.ratingAverage))
-                      ? 'fill-yellow-400 text-yellow-400'
-                      : 'fill-muted text-muted'
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "fill-muted text-muted"
                   }`}
                 />
               ))}
@@ -180,7 +193,7 @@ function ProductCard({ product }: { product: any }) {
           </div>
         )}
       </CardContent>
-      
+
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {product.salePrice ? (
@@ -198,14 +211,16 @@ function ProductCard({ product }: { product: any }) {
             </span>
           )}
         </div>
-        
+
         {/* Stock indicator */}
         {product.stockQuantity !== null && (
           <div className="text-xs">
             {product.stockQuantity === 0 ? (
               <span className="text-destructive font-medium">Out of Stock</span>
             ) : product.stockQuantity < 5 ? (
-              <span className="text-warning font-medium">Only {product.stockQuantity} left</span>
+              <span className="text-warning font-medium">
+                Only {product.stockQuantity} left
+              </span>
             ) : (
               <span className="text-success font-medium">In Stock</span>
             )}
@@ -218,20 +233,24 @@ function ProductCard({ product }: { product: any }) {
 
 export default async function OptimizedHomePage() {
   // Fetch all data in parallel
-  const { featuredProducts, saleProducts, categories: categoriesData } = await getHomePageData();
-  
+  const {
+    featuredProducts,
+    saleProducts,
+    categories: categoriesData,
+  } = await getHomePageData();
+
   const categoryIcons: Record<string, any> = {
-    'electronics': Monitor,
-    'furniture': Package,
-    'clothing': Package,
-    'smartphones': Smartphone,
-    'accessories': Watch,
-    'cameras': Camera,
-    'gaming': Gamepad2,
-    'laptops': Laptop,
-    'audio': Speaker,
-    'wearables': Watch,
-    'headphones': Headphones,
+    electronics: Monitor,
+    furniture: Package,
+    clothing: Package,
+    smartphones: Smartphone,
+    accessories: Watch,
+    cameras: Camera,
+    gaming: Gamepad2,
+    laptops: Laptop,
+    audio: Speaker,
+    wearables: Watch,
+    headphones: Headphones,
   };
 
   return (
@@ -249,7 +268,8 @@ export default async function OptimizedHomePage() {
               Welcome to TechStore
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Discover the latest in technology and innovation. From cutting-edge electronics to smart home solutions.
+              Discover the latest in technology and innovation. From
+              cutting-edge electronics to smart home solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
@@ -259,9 +279,7 @@ export default async function OptimizedHomePage() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/categories">
-                  Browse Categories
-                </Link>
+                <Link href="/categories">Browse Categories</Link>
               </Button>
             </div>
           </div>
@@ -277,7 +295,9 @@ export default async function OptimizedHomePage() {
                 <Truck className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">Free Shipping</p>
+                <p className="font-semibold text-sm text-foreground">
+                  Free Shipping
+                </p>
                 <p className="text-xs text-muted-foreground">Orders over $50</p>
               </div>
             </div>
@@ -286,7 +306,9 @@ export default async function OptimizedHomePage() {
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">Secure Payment</p>
+                <p className="font-semibold text-sm text-foreground">
+                  Secure Payment
+                </p>
                 <p className="text-xs text-muted-foreground">100% Protected</p>
               </div>
             </div>
@@ -295,8 +317,12 @@ export default async function OptimizedHomePage() {
                 <Clock className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">24/7 Support</p>
-                <p className="text-xs text-muted-foreground">Dedicated support</p>
+                <p className="font-semibold text-sm text-foreground">
+                  24/7 Support
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Dedicated support
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-3">
@@ -304,7 +330,9 @@ export default async function OptimizedHomePage() {
                 <CreditCard className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">Easy Returns</p>
+                <p className="font-semibold text-sm text-foreground">
+                  Easy Returns
+                </p>
                 <p className="text-xs text-muted-foreground">30 days return</p>
               </div>
             </div>
@@ -318,7 +346,9 @@ export default async function OptimizedHomePage() {
           <div className="container">
             <div className="text-center mb-10">
               <h2 className="text-3xl font-bold mb-3">Shop by Category</h2>
-              <p className="text-muted-foreground">Find exactly what you're looking for</p>
+              <p className="text-muted-foreground">
+                Find exactly what you&apos;re looking for
+              </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {categoriesData.map((category) => {
@@ -348,7 +378,9 @@ export default async function OptimizedHomePage() {
             <div className="flex items-center justify-between mb-10">
               <div>
                 <h2 className="text-3xl font-bold mb-3">Flash Sale</h2>
-                <p className="text-muted-foreground">Limited time offers on top products</p>
+                <p className="text-muted-foreground">
+                  Limited time offers on top products
+                </p>
               </div>
               <Badge variant="destructive" className="text-lg px-4 py-2">
                 <Clock className="h-4 w-4 mr-2" />
@@ -374,7 +406,9 @@ export default async function OptimizedHomePage() {
                 Trending Now
               </Badge>
               <h2 className="text-3xl font-bold mb-3">Featured Products</h2>
-              <p className="text-muted-foreground">Hand-picked selections just for you</p>
+              <p className="text-muted-foreground">
+                Hand-picked selections just for you
+              </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
@@ -402,7 +436,8 @@ export default async function OptimizedHomePage() {
               Get 10% Off Your First Order
             </h2>
             <p className="text-primary-foreground/90 mb-8">
-              Subscribe to our newsletter and receive exclusive offers, new product alerts, and tech tips.
+              Subscribe to our newsletter and receive exclusive offers, new
+              product alerts, and tech tips.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
               <input
@@ -410,7 +445,10 @@ export default async function OptimizedHomePage() {
                 placeholder="Enter your email"
                 className="flex-1 px-4 py-3 rounded-lg bg-background text-foreground placeholder:text-muted-foreground"
               />
-              <Button size="lg" className="bg-background text-primary hover:bg-background/90">
+              <Button
+                size="lg"
+                className="bg-background text-primary hover:bg-background/90"
+              >
                 Subscribe
               </Button>
             </div>

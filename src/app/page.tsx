@@ -1,16 +1,21 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/products/product-card";
-import { 
-  ShoppingCart, 
-  ArrowRight, 
-  Sparkles, 
-  Truck, 
-  Shield, 
+import {
+  ShoppingCart,
+  ArrowRight,
+  Sparkles,
+  Truck,
+  Shield,
   CreditCard,
   Package,
   Clock,
@@ -27,7 +32,7 @@ import {
   Laptop,
   Speaker,
   Heart,
-  Eye
+  Eye,
 } from "lucide-react";
 import Image from "next/image";
 import { db } from "@/lib/db";
@@ -42,19 +47,16 @@ async function getFeaturedProducts() {
       .from(products)
       .where(
         and(
-          eq(products.status, 'active'),
-          or(
-            eq(products.featured, true),
-            gt(products.stockQuantity, 0)
-          )
+          eq(products.status, "active"),
+          or(eq(products.featured, true), gt(products.stockQuantity, 0))
         )
       )
       .orderBy(desc(products.featured), desc(products.createdAt))
       .limit(8);
-    
+
     return featuredProducts;
   } catch (error) {
-    console.error('Error fetching featured products:', error);
+    console.error("Error fetching featured products:", error);
     return [];
   }
 }
@@ -67,17 +69,17 @@ async function getSaleProducts() {
       .from(products)
       .where(
         and(
-          eq(products.status, 'active'),
+          eq(products.status, "active"),
           sql`${products.salePrice} IS NOT NULL`,
           gt(products.stockQuantity, 0)
         )
       )
       .orderBy(desc(products.createdAt))
       .limit(4);
-    
+
     return saleProducts;
   } catch (error) {
-    console.error('Error fetching sale products:', error);
+    console.error("Error fetching sale products:", error);
     return [];
   }
 }
@@ -90,10 +92,10 @@ async function getCategories() {
       .from(categories)
       .orderBy(categories.displayOrder)
       .limit(6);
-    
+
     return allCategories;
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
     return [];
   }
 }
@@ -154,7 +156,9 @@ async function FeaturedProducts() {
       <div className="container">
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight mb-2 text-foreground">Featured Products</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-2 text-foreground">
+              Featured Products
+            </h2>
             <p className="text-muted-foreground">
               Handpicked items our customers love most
             </p>
@@ -228,29 +232,31 @@ async function CategoriesSection() {
   const categoriesData = await getCategories();
 
   const categoryIcons: Record<string, any> = {
-    'electronics': Monitor,
-    'furniture': Package,
-    'home-kitchen': Package,
-    'sports-fitness': TrendingUp,
-    'home-office': Laptop,
-    'bags-luggage': Package,
-    'health-wellness': Shield,
+    electronics: Monitor,
+    furniture: Package,
+    "home-kitchen": Package,
+    "sports-fitness": TrendingUp,
+    "home-office": Laptop,
+    "bags-luggage": Package,
+    "health-wellness": Shield,
   };
 
   return (
     <section className="py-16">
       <div className="container">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold tracking-tight mb-2 text-foreground">Shop by Category</h2>
+          <h2 className="text-3xl font-bold tracking-tight mb-2 text-foreground">
+            Shop by Category
+          </h2>
           <p className="text-muted-foreground">
-            Find exactly what you're looking for
+            Find exactly what you&apos;re looking for
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {categoriesData.map((category: any) => (
-            <CategoryCard 
-              key={category.id} 
-              category={category} 
+            <CategoryCard
+              key={category.id}
+              category={category}
               icon={categoryIcons[category.slug] || Package}
             />
           ))}
@@ -300,17 +306,26 @@ export default function HomePage() {
                 <span className="block text-yellow-300">Tech Store</span>
               </h1>
               <p className="mb-8 text-lg text-primary-foreground/90 md:text-xl">
-                Premium electronics, unbeatable prices, and lightning-fast delivery. 
-                Shop with confidence with our 30-day return guarantee.
+                Premium electronics, unbeatable prices, and lightning-fast
+                delivery. Shop with confidence with our 30-day return guarantee.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-background text-primary hover:bg-background/90" asChild>
+                <Button
+                  size="lg"
+                  className="bg-background text-primary hover:bg-background/90"
+                  asChild
+                >
                   <Link href="/products">
                     <ShoppingCart className="mr-2 h-5 w-5" />
                     Start Shopping
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/50 hover:bg-primary-foreground/10" asChild>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent text-primary-foreground border-primary-foreground/50 hover:bg-primary-foreground/10"
+                  asChild
+                >
                   <Link href="/products?sale=true">
                     <Gift className="mr-2 h-5 w-5" />
                     View Deals
@@ -340,7 +355,9 @@ export default function HomePage() {
                       <Headphones className="h-8 w-8" />
                       <div>
                         <p className="font-semibold">Audio</p>
-                        <p className="text-sm text-primary-foreground/80">Premium Sound</p>
+                        <p className="text-sm text-primary-foreground/80">
+                          Premium Sound
+                        </p>
                       </div>
                     </div>
                   </Card>
@@ -349,7 +366,9 @@ export default function HomePage() {
                       <Camera className="h-8 w-8" />
                       <div>
                         <p className="font-semibold">Cameras</p>
-                        <p className="text-sm text-primary-foreground/80">Capture Moments</p>
+                        <p className="text-sm text-primary-foreground/80">
+                          Capture Moments
+                        </p>
                       </div>
                     </div>
                   </Card>
@@ -360,7 +379,9 @@ export default function HomePage() {
                       <Smartphone className="h-8 w-8" />
                       <div>
                         <p className="font-semibold">Phones</p>
-                        <p className="text-sm text-primary-foreground/80">Latest Models</p>
+                        <p className="text-sm text-primary-foreground/80">
+                          Latest Models
+                        </p>
                       </div>
                     </div>
                   </Card>
@@ -369,7 +390,9 @@ export default function HomePage() {
                       <Gamepad2 className="h-8 w-8" />
                       <div>
                         <p className="font-semibold">Gaming</p>
-                        <p className="text-sm text-primary-foreground/80">Level Up</p>
+                        <p className="text-sm text-primary-foreground/80">
+                          Level Up
+                        </p>
                       </div>
                     </div>
                   </Card>
@@ -389,7 +412,9 @@ export default function HomePage() {
                 <Truck className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">Free Shipping</p>
+                <p className="font-semibold text-sm text-foreground">
+                  Free Shipping
+                </p>
                 <p className="text-xs text-muted-foreground">Orders over $50</p>
               </div>
             </div>
@@ -398,7 +423,9 @@ export default function HomePage() {
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">Secure Payment</p>
+                <p className="font-semibold text-sm text-foreground">
+                  Secure Payment
+                </p>
                 <p className="text-xs text-muted-foreground">100% Protected</p>
               </div>
             </div>
@@ -407,8 +434,12 @@ export default function HomePage() {
                 <Clock className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">24/7 Support</p>
-                <p className="text-xs text-muted-foreground">Dedicated support</p>
+                <p className="font-semibold text-sm text-foreground">
+                  24/7 Support
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Dedicated support
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-3">
@@ -416,7 +447,9 @@ export default function HomePage() {
                 <CreditCard className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-foreground">Easy Returns</p>
+                <p className="font-semibold text-sm text-foreground">
+                  Easy Returns
+                </p>
                 <p className="text-xs text-muted-foreground">30 days return</p>
               </div>
             </div>
@@ -425,7 +458,13 @@ export default function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <Suspense fallback={<div className="py-16"><Skeleton className="h-96" /></div>}>
+      <Suspense
+        fallback={
+          <div className="py-16">
+            <Skeleton className="h-96" />
+          </div>
+        }
+      >
         <CategoriesSection />
       </Suspense>
 
@@ -448,7 +487,8 @@ export default function HomePage() {
               Get 10% Off Your First Order
             </h2>
             <p className="text-primary-foreground/90 mb-8">
-              Subscribe to our newsletter and receive exclusive offers, new product alerts, and tech tips.
+              Subscribe to our newsletter and receive exclusive offers, new
+              product alerts, and tech tips.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
               <input
@@ -456,7 +496,10 @@ export default function HomePage() {
                 placeholder="Enter your email"
                 className="flex-1 px-4 py-3 rounded-lg bg-background text-foreground placeholder:text-muted-foreground"
               />
-              <Button size="lg" className="bg-background text-primary hover:bg-background/90">
+              <Button
+                size="lg"
+                className="bg-background text-primary hover:bg-background/90"
+              >
                 Subscribe
               </Button>
             </div>

@@ -81,7 +81,10 @@ function useSearchHistory() {
   }, []);
 
   const addToHistory = (query: string) => {
-    const newHistory = [query, ...history.filter(h => h !== query)].slice(0, 5);
+    const newHistory = [query, ...history.filter((h) => h !== query)].slice(
+      0,
+      5
+    );
     setHistory(newHistory);
     localStorage.setItem("searchHistory", JSON.stringify(newHistory));
   };
@@ -97,7 +100,11 @@ function useSearchHistory() {
 // Product Search Result Component
 function ProductSearchResult({ product }: { product: Product }) {
   const discountPercentage = product.salePrice
-    ? Math.round(((parseFloat(product.price) - parseFloat(product.salePrice)) / parseFloat(product.price)) * 100)
+    ? Math.round(
+        ((parseFloat(product.price) - parseFloat(product.salePrice)) /
+          parseFloat(product.price)) *
+          100
+      )
     : 0;
 
   return (
@@ -148,12 +155,16 @@ function ProductSearchResult({ product }: { product: Product }) {
 }
 
 // Inline Search Component
-export function InlineSearch({ placeholder, onSearch, className }: ProductSearchProps) {
+export function InlineSearch({
+  placeholder,
+  onSearch,
+  className,
+}: ProductSearchProps) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const { history, addToHistory } = useSearchHistory();
+  const { history, addToHistory, clearHistory } = useSearchHistory();
   const router = useRouter();
 
   const handleSearch = useCallback(async (searchQuery: string) => {
@@ -164,7 +175,9 @@ export function InlineSearch({ placeholder, onSearch, className }: ProductSearch
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/products/search?q=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(
+        `/api/products/search?q=${encodeURIComponent(searchQuery)}`
+      );
       const data = await res.json();
       setResults(data);
     } catch (error) {
@@ -281,17 +294,19 @@ export function InlineSearch({ placeholder, onSearch, className }: ProductSearch
                 )}
 
                 {/* No Results */}
-                {results.products.length === 0 && results.categories.length === 0 && (
-                  <div className="p-8 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No results found for "{query}"
-                    </p>
-                  </div>
-                )}
+                {results.products.length === 0 &&
+                  results.categories.length === 0 && (
+                    <div className="p-8 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        No results found for &quot;{query}&quot;
+                      </p>
+                    </div>
+                  )}
               </>
             ) : (
               /* Search History */
-              history.length > 0 && !query && (
+              history.length > 0 &&
+              !query && (
                 <div className="p-2">
                   <div className="flex items-center justify-between px-2 py-1.5">
                     <span className="text-xs font-medium text-muted-foreground">
@@ -299,7 +314,6 @@ export function InlineSearch({ placeholder, onSearch, className }: ProductSearch
                     </span>
                     <button
                       onClick={() => {
-                        const { clearHistory } = useSearchHistory();
                         clearHistory();
                       }}
                       className="text-xs text-muted-foreground hover:text-foreground"
@@ -362,7 +376,9 @@ export function CommandSearch() {
     const debounce = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(
+          `/api/products/search?q=${encodeURIComponent(query)}`
+        );
         const data = await res.json();
         setResults(data);
       } catch (error) {
@@ -441,14 +457,21 @@ export function CommandSearch() {
                       <div className="flex-1">
                         <div className="font-medium">{product.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {product.category} • ${parseFloat(product.salePrice || product.price).toFixed(2)}
+                          {product.category} • $
+                          {parseFloat(
+                            product.salePrice || product.price
+                          ).toFixed(2)}
                         </div>
                       </div>
                     </CommandItem>
                   ))}
                   {results.products.length > 5 && (
                     <CommandItem
-                      onSelect={() => handleSelect(`/products?search=${encodeURIComponent(query)}`)}
+                      onSelect={() =>
+                        handleSelect(
+                          `/products?search=${encodeURIComponent(query)}`
+                        )
+                      }
                     >
                       View all {results.products.length} products
                       <ArrowRight className="ml-auto h-4 w-4" />
@@ -462,7 +485,9 @@ export function CommandSearch() {
                   {results.categories.map((category) => (
                     <CommandItem
                       key={category.id}
-                      onSelect={() => handleSelect(`/products?category=${category.id}`)}
+                      onSelect={() =>
+                        handleSelect(`/products?category=${category.id}`)
+                      }
                     >
                       <Tag className="mr-2 h-4 w-4" />
                       {category.name}
@@ -489,9 +514,14 @@ export function CommandSearch() {
             </>
           )}
 
-          {!loading && results && results.products.length === 0 && results.categories.length === 0 && (
-            <CommandEmpty>No results found for "{query}"</CommandEmpty>
-          )}
+          {!loading &&
+            results &&
+            results.products.length === 0 &&
+            results.categories.length === 0 && (
+              <CommandEmpty>
+                No results found for &quot;{query}&quot;
+              </CommandEmpty>
+            )}
         </CommandList>
       </CommandDialog>
     </>
@@ -499,7 +529,13 @@ export function CommandSearch() {
 }
 
 // Search Dialog Component
-export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function SearchDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -511,7 +547,9 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(
+        `/api/products/search?q=${encodeURIComponent(query)}`
+      );
       const data = await res.json();
       setResults(data);
     } catch (error) {
@@ -643,7 +681,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
               ) : (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">
-                    No products found for "{query}"
+                    No products found for &quot;{query}&quot;
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Try adjusting your search terms
@@ -658,22 +696,30 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
   );
 }
 
+// Dialog Search Wrapper Component
+function DialogSearchWrapper() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onClick={() => setOpen(true)} variant="outline">
+        <Search className="mr-2 h-4 w-4" />
+        Search
+      </Button>
+      <SearchDialog open={open} onOpenChange={setOpen} />
+    </>
+  );
+}
+
 // Main Export - Flexible Search Component
-export default function ProductSearch({ variant = "inline", ...props }: ProductSearchProps) {
+export default function ProductSearch({
+  variant = "inline",
+  ...props
+}: ProductSearchProps) {
   switch (variant) {
     case "command":
       return <CommandSearch />;
     case "dialog":
-      const [open, setOpen] = useState(false);
-      return (
-        <>
-          <Button onClick={() => setOpen(true)} variant="outline">
-            <Search className="mr-2 h-4 w-4" />
-            Search
-          </Button>
-          <SearchDialog open={open} onOpenChange={setOpen} />
-        </>
-      );
+      return <DialogSearchWrapper />;
     case "inline":
     default:
       return <InlineSearch {...props} />;

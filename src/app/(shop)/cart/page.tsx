@@ -5,7 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCartStore } from "@/store/useCartStore";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
@@ -13,18 +19,18 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function CartPage() {
   const { toast } = useToast();
-  const { 
-    items, 
-    updateQuantity, 
-    removeItem, 
-    getTotalPrice, 
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    getTotalPrice,
     getTotalItems,
-    isLoading 
+    isLoading,
   } = useCartStore();
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    
+
     try {
       await updateQuantity(itemId, newQuantity);
     } catch (error) {
@@ -53,9 +59,9 @@ export default function CartPage() {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(price);
   };
 
@@ -71,7 +77,7 @@ export default function CartPage() {
           <ShoppingBag className="mx-auto h-24 w-24 text-muted-foreground mb-6" />
           <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
           <p className="text-muted-foreground mb-8">
-            Looks like you haven't added anything to your cart yet.
+            Looks like you haven&apos;t added anything to your cart yet.
           </p>
           <Button asChild size="lg">
             <Link href="/products">
@@ -100,7 +106,7 @@ export default function CartPage() {
                 {items.map((item) => {
                   const itemPrice = item.salePrice ?? item.price;
                   const itemTotal = itemPrice * item.quantity;
-                  
+
                   return (
                     <div key={item.id} className="p-6">
                       <div className="flex gap-4">
@@ -125,7 +131,7 @@ export default function CartPage() {
                           <div className="flex justify-between">
                             <div>
                               <h3 className="font-semibold">
-                                <Link 
+                                <Link
                                   href={`/products/${item.productId}`}
                                   className="hover:underline"
                                 >
@@ -153,7 +159,9 @@ export default function CartPage() {
 
                             {/* Item Total */}
                             <div className="text-right">
-                              <p className="font-semibold">{formatPrice(itemTotal)}</p>
+                              <p className="font-semibold">
+                                {formatPrice(itemTotal)}
+                              </p>
                               {item.quantity > 1 && (
                                 <p className="text-sm text-muted-foreground">
                                   {formatPrice(itemPrice)} each
@@ -169,7 +177,12 @@ export default function CartPage() {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.id,
+                                    item.quantity - 1
+                                  )
+                                }
                                 disabled={item.quantity <= 1 || isLoading}
                               >
                                 <Minus className="h-3 w-3" />
@@ -192,10 +205,15 @@ export default function CartPage() {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.id,
+                                    item.quantity + 1
+                                  )
+                                }
                                 disabled={
-                                  (item.stockQuantity !== undefined && 
-                                   item.quantity >= item.stockQuantity) || 
+                                  (item.stockQuantity !== undefined &&
+                                    item.quantity >= item.stockQuantity) ||
                                   isLoading
                                 }
                               >
@@ -206,7 +224,9 @@ export default function CartPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleRemoveItem(item.id, item.name)}
+                              onClick={() =>
+                                handleRemoveItem(item.id, item.name)
+                              }
                               disabled={isLoading}
                               className="text-destructive hover:text-destructive"
                             >
@@ -216,13 +236,13 @@ export default function CartPage() {
                           </div>
 
                           {/* Stock Warning */}
-                          {item.stockQuantity !== undefined && 
-                           item.stockQuantity <= 5 && 
-                           item.stockQuantity > 0 && (
-                            <p className="mt-2 text-sm text-orange-500">
-                              Only {item.stockQuantity} left in stock
-                            </p>
-                          )}
+                          {item.stockQuantity !== undefined &&
+                            item.stockQuantity <= 5 &&
+                            item.stockQuantity > 0 && (
+                              <p className="mt-2 text-sm text-orange-500">
+                                Only {item.stockQuantity} left in stock
+                              </p>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -279,15 +299,14 @@ export default function CartPage() {
               {shipping > 0 && (
                 <div className="rounded-lg bg-muted p-3">
                   <p className="text-sm text-muted-foreground">
-                    Add {formatPrice(100 - subtotal)} more to qualify for free shipping
+                    Add {formatPrice(100 - subtotal)} more to qualify for free
+                    shipping
                   </p>
                 </div>
               )}
 
               <Button className="w-full" size="lg" asChild>
-                <Link href="/checkout">
-                  Proceed to Checkout
-                </Link>
+                <Link href="/checkout">Proceed to Checkout</Link>
               </Button>
 
               <div className="space-y-2 text-center">

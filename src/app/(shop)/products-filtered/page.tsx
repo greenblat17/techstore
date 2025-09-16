@@ -1,23 +1,30 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import ProductFilters, { ProductFiltersMobile } from "@/components/products/product-filters";
-import { 
-  ShoppingCart, 
-  ChevronLeft, 
+import ProductFilters, {
+  ProductFiltersMobile,
+} from "@/components/products/product-filters";
+import {
+  ShoppingCart,
+  ChevronLeft,
   ChevronRight,
   Search,
   Grid3x3,
   Grid2x2,
-  List
+  List,
 } from "lucide-react";
 
 // Types
@@ -58,9 +65,19 @@ interface FilterState {
 }
 
 // Product Card Component
-function ProductCard({ product, viewMode = "grid" }: { product: Product; viewMode?: string }) {
-  const discountPercentage = product.salePrice 
-    ? Math.round(((parseFloat(product.price) - parseFloat(product.salePrice)) / parseFloat(product.price)) * 100)
+function ProductCard({
+  product,
+  viewMode = "grid",
+}: {
+  product: Product;
+  viewMode?: string;
+}) {
+  const discountPercentage = product.salePrice
+    ? Math.round(
+        ((parseFloat(product.price) - parseFloat(product.salePrice)) /
+          parseFloat(product.price)) *
+          100
+      )
     : 0;
 
   if (viewMode === "list") {
@@ -93,7 +110,9 @@ function ProductCard({ product, viewMode = "grid" }: { product: Product; viewMod
               </h3>
             </Link>
             {product.brand && (
-              <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
+              <p className="text-sm text-muted-foreground mb-1">
+                {product.brand}
+              </p>
             )}
             {product.shortDescription && (
               <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
@@ -126,8 +145,8 @@ function ProductCard({ product, viewMode = "grid" }: { product: Product; viewMod
                       key={i}
                       className={`text-sm ${
                         i < Math.round(product.ratingAverage)
-                          ? 'text-yellow-400'
-                          : 'text-gray-300'
+                          ? "text-yellow-400"
+                          : "text-gray-300"
                       }`}
                     >
                       ★
@@ -140,7 +159,7 @@ function ProductCard({ product, viewMode = "grid" }: { product: Product; viewMod
               </div>
             )}
             <Button size="sm" disabled={product.stockQuantity === 0}>
-              {product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+              {product.stockQuantity === 0 ? "Out of Stock" : "Add to Cart"}
             </Button>
           </div>
         </div>
@@ -216,8 +235,8 @@ function ProductCard({ product, viewMode = "grid" }: { product: Product; viewMod
                   key={i}
                   className={`text-sm ${
                     i < Math.round(product.ratingAverage)
-                      ? 'text-yellow-400'
-                      : 'text-gray-300'
+                      ? "text-yellow-400"
+                      : "text-gray-300"
                   }`}
                 >
                   ★
@@ -232,7 +251,7 @@ function ProductCard({ product, viewMode = "grid" }: { product: Product; viewMod
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button className="w-full" disabled={product.stockQuantity === 0}>
-          {product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+          {product.stockQuantity === 0 ? "Out of Stock" : "Add to Cart"}
         </Button>
       </CardFooter>
     </Card>
@@ -274,10 +293,10 @@ function ProductSkeleton({ viewMode = "grid" }: { viewMode?: string }) {
 }
 
 // Main Products Page Component
-export default function ProductsFilteredPage() {
+function ProductsFilteredPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // State
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -285,12 +304,12 @@ export default function ProductsFilteredPage() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  
+
   // Filter data
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [maxPrice, setMaxPrice] = useState(1000);
-  
+
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -301,16 +320,16 @@ export default function ProductsFilteredPage() {
       try {
         const res = await fetch("/api/categories/tree");
         const data = await res.json();
-        
+
         // Flatten the tree structure for filter sidebar
         const flatCategories: Category[] = [];
         function flatten(cats: any[]) {
-          cats.forEach(cat => {
+          cats.forEach((cat) => {
             flatCategories.push({
               id: cat.id,
               name: cat.name,
               slug: cat.slug,
-              productCount: cat.totalProducts
+              productCount: cat.totalProducts,
             });
             if (cat.children && cat.children.length > 0) {
               flatten(cat.children);
@@ -327,98 +346,107 @@ export default function ProductsFilteredPage() {
   }, []);
 
   // Fetch products when filters change
-  const fetchProducts = useCallback(async (filters: FilterState) => {
-    setLoading(true);
-    
-    // Build query params
-    const params = new URLSearchParams();
-    params.set("page", currentPage.toString());
-    params.set("limit", "12");
-    
-    // Map sortBy to API format
-    let sortBy = "createdAt";
-    let sortOrder = "desc";
-    switch (filters.sortBy) {
-      case "oldest":
-        sortBy = "createdAt";
-        sortOrder = "asc";
-        break;
-      case "price-low":
-        sortBy = "price";
-        sortOrder = "asc";
-        break;
-      case "price-high":
-        sortBy = "price";
-        sortOrder = "desc";
-        break;
-      case "name-asc":
-        sortBy = "name";
-        sortOrder = "asc";
-        break;
-      case "name-desc":
-        sortBy = "name";
-        sortOrder = "desc";
-        break;
-      case "rating":
-        sortBy = "rating";
-        sortOrder = "desc";
-        break;
-      case "bestselling":
-        sortBy = "stockQuantity";
-        sortOrder = "desc";
-        break;
-    }
-    params.set("sortBy", sortBy);
-    params.set("sortOrder", sortOrder);
-    
-    if (searchQuery) params.set("search", searchQuery);
-    if (filters.categories.length > 0) {
-      // For now, just use the first category (API currently supports single category)
-      params.set("categoryId", filters.categories[0]);
-    }
-    if (filters.brands.length > 0) {
-      // For now, just use the first brand (API currently supports single brand)
-      params.set("brand", filters.brands[0]);
-    }
-    if (filters.priceRange[0] > 0) params.set("minPrice", filters.priceRange[0].toString());
-    if (filters.priceRange[1] < maxPrice) params.set("maxPrice", filters.priceRange[1].toString());
-    if (filters.inStock) params.set("inStock", "true");
-    
-    try {
-      const res = await fetch(`/api/products?${params}`);
-      const data = await res.json();
-      
-      setProducts(data.products || []);
-      setTotalPages(data.pagination?.totalPages || 1);
-      setTotalProducts(data.pagination?.totalCount || 0);
-      
-      // Extract brands from the response
-      if (data.filters?.brands) {
-        const brandCounts = data.filters.brands.map((brand: string) => ({
-          name: brand,
-          count: data.products.filter((p: Product) => p.brand === brand).length
-        }));
-        setBrands(brandCounts);
+  const fetchProducts = useCallback(
+    async (filters: FilterState) => {
+      setLoading(true);
+
+      // Build query params
+      const params = new URLSearchParams();
+      params.set("page", currentPage.toString());
+      params.set("limit", "12");
+
+      // Map sortBy to API format
+      let sortBy = "createdAt";
+      let sortOrder = "desc";
+      switch (filters.sortBy) {
+        case "oldest":
+          sortBy = "createdAt";
+          sortOrder = "asc";
+          break;
+        case "price-low":
+          sortBy = "price";
+          sortOrder = "asc";
+          break;
+        case "price-high":
+          sortBy = "price";
+          sortOrder = "desc";
+          break;
+        case "name-asc":
+          sortBy = "name";
+          sortOrder = "asc";
+          break;
+        case "name-desc":
+          sortBy = "name";
+          sortOrder = "desc";
+          break;
+        case "rating":
+          sortBy = "rating";
+          sortOrder = "desc";
+          break;
+        case "bestselling":
+          sortBy = "stockQuantity";
+          sortOrder = "desc";
+          break;
       }
-      
-      // Determine max price from products
-      if (data.products && data.products.length > 0) {
-        const prices = data.products.map((p: Product) => parseFloat(p.price));
-        const max = Math.ceil(Math.max(...prices) / 100) * 100; // Round up to nearest 100
-        setMaxPrice(max);
+      params.set("sortBy", sortBy);
+      params.set("sortOrder", sortOrder);
+
+      if (searchQuery) params.set("search", searchQuery);
+      if (filters.categories.length > 0) {
+        // For now, just use the first category (API currently supports single category)
+        params.set("categoryId", filters.categories[0]);
       }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage, searchQuery, maxPrice]);
+      if (filters.brands.length > 0) {
+        // For now, just use the first brand (API currently supports single brand)
+        params.set("brand", filters.brands[0]);
+      }
+      if (filters.priceRange[0] > 0)
+        params.set("minPrice", filters.priceRange[0].toString());
+      if (filters.priceRange[1] < maxPrice)
+        params.set("maxPrice", filters.priceRange[1].toString());
+      if (filters.inStock) params.set("inStock", "true");
+
+      try {
+        const res = await fetch(`/api/products?${params}`);
+        const data = await res.json();
+
+        setProducts(data.products || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setTotalProducts(data.pagination?.totalCount || 0);
+
+        // Extract brands from the response
+        if (data.filters?.brands) {
+          const brandCounts = data.filters.brands.map((brand: string) => ({
+            name: brand,
+            count: data.products.filter((p: Product) => p.brand === brand)
+              .length,
+          }));
+          setBrands(brandCounts);
+        }
+
+        // Determine max price from products
+        if (data.products && data.products.length > 0) {
+          const prices = data.products.map((p: Product) => parseFloat(p.price));
+          const max = Math.ceil(Math.max(...prices) / 100) * 100; // Round up to nearest 100
+          setMaxPrice(max);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentPage, searchQuery, maxPrice]
+  );
 
   // Handle filter changes
-  const handleFiltersChange = useCallback((filters: FilterState) => {
-    setCurrentPage(1); // Reset to first page when filters change
-    fetchProducts(filters);
-  }, [fetchProducts]);
+  const handleFiltersChange = useCallback(
+    (filters: FilterState) => {
+      setCurrentPage(1); // Reset to first page when filters change
+      fetchProducts(filters);
+    },
+    [fetchProducts]
+  );
 
   // Handle search
   const handleSearch = (e: React.FormEvent) => {
@@ -444,7 +472,7 @@ export default function ProductsFilteredPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">All Products</h1>
-        
+
         {/* Search Bar and View Options */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <form onSubmit={handleSearch} className="flex-1">
@@ -459,7 +487,7 @@ export default function ProductsFilteredPage() {
               />
             </div>
           </form>
-          
+
           <div className="flex gap-2">
             {/* Mobile Filter Toggle */}
             <div className="sm:hidden">
@@ -476,7 +504,7 @@ export default function ProductsFilteredPage() {
                 totalProducts={totalProducts}
               />
             </div>
-            
+
             {/* View Mode Toggle */}
             <div className="flex gap-1 border rounded-md p-1">
               <Button
@@ -527,10 +555,13 @@ export default function ProductsFilteredPage() {
         {/* Product Grid/List */}
         <div className="flex-1">
           {loading ? (
-            <div className={viewMode === "grid" 
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-              : "space-y-4"
-            }>
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  : "space-y-4"
+              }
+            >
               {[...Array(12)].map((_, i) => (
                 <ProductSkeleton key={i} viewMode={viewMode} />
               ))}
@@ -539,35 +570,46 @@ export default function ProductsFilteredPage() {
             <Card className="p-12 text-center">
               <CardContent>
                 <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No products found</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  No products found
+                </h3>
                 <p className="text-muted-foreground mb-4">
                   Try adjusting your filters or search query
                 </p>
-                <Button onClick={() => {
-                  setSearchQuery("");
-                  setSearchInput("");
-                  setCurrentPage(1);
-                  fetchProducts({
-                    categories: [],
-                    brands: [],
-                    priceRange: [0, maxPrice],
-                    inStock: false,
-                    rating: null,
-                    sortBy: "newest",
-                  });
-                }}>
+                <Button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSearchInput("");
+                    setCurrentPage(1);
+                    fetchProducts({
+                      categories: [],
+                      brands: [],
+                      priceRange: [0, maxPrice],
+                      inStock: false,
+                      rating: null,
+                      sortBy: "newest",
+                    });
+                  }}
+                >
                   Clear Filters
                 </Button>
               </CardContent>
             </Card>
           ) : (
             <>
-              <div className={viewMode === "grid" 
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-                : "space-y-4"
-              }>
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    : "space-y-4"
+                }
+              >
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} viewMode={viewMode} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    viewMode={viewMode}
+                  />
                 ))}
               </div>
 
@@ -577,20 +619,24 @@ export default function ProductsFilteredPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                    }
                     disabled={currentPage === 1}
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                   </Button>
-                  
+
                   <div className="flex items-center gap-1">
                     {[...Array(Math.min(5, totalPages))].map((_, i) => {
                       const pageNum = i + 1;
                       return (
                         <Button
                           key={pageNum}
-                          variant={currentPage === pageNum ? "default" : "outline"}
+                          variant={
+                            currentPage === pageNum ? "default" : "outline"
+                          }
                           size="sm"
                           onClick={() => setCurrentPage(pageNum)}
                           className="w-10"
@@ -603,7 +649,9 @@ export default function ProductsFilteredPage() {
                       <>
                         <span className="px-2">...</span>
                         <Button
-                          variant={currentPage === totalPages ? "default" : "outline"}
+                          variant={
+                            currentPage === totalPages ? "default" : "outline"
+                          }
                           size="sm"
                           onClick={() => setCurrentPage(totalPages)}
                           className="w-10"
@@ -613,11 +661,13 @@ export default function ProductsFilteredPage() {
                       </>
                     )}
                   </div>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    }
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -630,5 +680,28 @@ export default function ProductsFilteredPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Export with Suspense wrapper
+export default function ProductsFilteredPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-48" />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-96 w-full" />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <ProductsFilteredPageContent />
+    </Suspense>
   );
 }

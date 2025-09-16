@@ -25,26 +25,42 @@ export function useErrorHandler(options: ErrorHandlerOptions = {}) {
       // Parse error object
       if (error instanceof Error) {
         errorMessage = customMessage || error.message || fallbackMessage;
-        
+
         // Check for specific error types
         if (error.name === "NetworkError" || error.message.includes("fetch")) {
           errorTitle = "Network Error";
           errorMessage = "Please check your internet connection and try again.";
-        } else if (error.message.includes("unauthorized") || error.message.includes("401")) {
+        } else if (
+          error.message.includes("unauthorized") ||
+          error.message.includes("401")
+        ) {
           errorTitle = "Authentication Error";
           errorMessage = "Please sign in to continue.";
-        } else if (error.message.includes("forbidden") || error.message.includes("403")) {
+        } else if (
+          error.message.includes("forbidden") ||
+          error.message.includes("403")
+        ) {
           errorTitle = "Access Denied";
           errorMessage = "You don't have permission to perform this action.";
-        } else if (error.message.includes("not found") || error.message.includes("404")) {
+        } else if (
+          error.message.includes("not found") ||
+          error.message.includes("404")
+        ) {
           errorTitle = "Not Found";
           errorMessage = "The requested resource was not found.";
-        } else if (error.message.includes("validation") || error.message.includes("400")) {
+        } else if (
+          error.message.includes("validation") ||
+          error.message.includes("400")
+        ) {
           errorTitle = "Validation Error";
           errorMessage = error.message;
-        } else if (error.message.includes("server") || error.message.includes("500")) {
+        } else if (
+          error.message.includes("server") ||
+          error.message.includes("500")
+        ) {
           errorTitle = "Server Error";
-          errorMessage = "Something went wrong on our end. Please try again later.";
+          errorMessage =
+            "Something went wrong on our end. Please try again later.";
         }
       }
 
@@ -74,15 +90,16 @@ export function useErrorHandler(options: ErrorHandlerOptions = {}) {
 }
 
 // Async error wrapper for try-catch blocks
-export async function withErrorHandler<T>(
-  fn: () => Promise<T>,
-  options?: ErrorHandlerOptions
-): Promise<T | null> {
-  try {
-    return await fn();
-  } catch (error) {
-    const { handleError } = useErrorHandler(options);
-    handleError(error);
-    return null;
-  }
+export function createErrorHandler(options?: ErrorHandlerOptions) {
+  return async function withErrorHandler<T>(
+    fn: () => Promise<T>
+  ): Promise<T | null> {
+    try {
+      return await fn();
+    } catch (error) {
+      // Handle error without using hooks
+      console.error("Error occurred:", error);
+      return null;
+    }
+  };
 }
